@@ -1576,7 +1576,7 @@ static int xpad_start_xbox_360(struct usb_xpad *xpad)
 	have to inspect the manufacturer string.
 	Sending this sequence to other controllers will break initialization.
 	*/
-	bool is_shanwan = xpad->udev->manufacturer && strcasecmp("shanwan", xpad->udev->manufacturer) == 0;
+	bool is_shanwan = 1; // xpad->udev->manufacturer && strcasecmp("shanwan", xpad->udev->manufacturer) == 0;
 	if (!(xpad->quirks & QUIRK_360_START) && !is_shanwan) {
 		status = 0;
 		goto err_free_ctrl_data;
@@ -1586,7 +1586,7 @@ static int xpad_start_xbox_360(struct usb_xpad *xpad)
 	    status = usb_control_msg(xpad->udev,
 		    usb_rcvctrlpipe(xpad->udev, 0),
 		    0x1, 0xc1,
-		    cpu_to_le16(0x100), cpu_to_le16(0x0), data, cpu_to_le16(20),
+		    cpu_to_le16(0x100), cpu_to_le16(0x0), data, cpu_to_le16(14),
 		    TIMEOUT);
 
 #ifdef DEBUG
@@ -1600,48 +1600,6 @@ static int xpad_start_xbox_360(struct usb_xpad *xpad)
 #ifdef DEBUG
 	    else {
 		    print_hex_dump(KERN_DEBUG, "xpad-dbg: ", DUMP_PREFIX_OFFSET, 32, 1, data, 20, 0);
-	    }
-#endif
-	}
-
-	if ((xpad->quirks & QUIRK_360_START_PKT_2) || is_shanwan) {
-	    status = usb_control_msg(xpad->udev,
-		    usb_rcvctrlpipe(xpad->udev, 0),
-		    0x1, 0xc1,
-		    cpu_to_le16(0x0), cpu_to_le16(0x0), data, cpu_to_le16(8),
-		    TIMEOUT);
-#ifdef DEBUG
-	    dev_dbg(&xpad->intf->dev,
-		    "%s - control message 2 returned %d\n", __func__, status);
-#endif
-
-	    if (status < 0) {
-		    goto err_free_ctrl_data;
-	    }
-#ifdef DEBUG
-	    else {
-		    print_hex_dump(KERN_DEBUG, "xpad-dbg: ", DUMP_PREFIX_OFFSET, 32, 1, data, 8, 0);
-	    }
-#endif
-	}
-
-	if ((xpad->quirks & QUIRK_360_START_PKT_3) || is_shanwan) {
-	    status = usb_control_msg(xpad->udev,
-		    usb_rcvctrlpipe(xpad->udev, 0),
-		    0x1, 0xc0,
-		    cpu_to_le16(0x0), cpu_to_le16(0x0), data, cpu_to_le16(4),
-		    TIMEOUT);
-#ifdef DEBUG
-	    dev_dbg(&xpad->intf->dev,
-		    "%s - control message 3 returned %d\n", __func__, status);
-#endif
-
-	    if (status < 0) {
-		    goto err_free_ctrl_data;
-	    }
-#ifdef DEBUG
-	    else {
-		    print_hex_dump(KERN_DEBUG, "xpad-dbg: ", DUMP_PREFIX_OFFSET, 32, 1, data, 4, 0);
 	    }
 #endif
 	}
